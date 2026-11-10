@@ -1,0 +1,185 @@
+/* ==========================================================================
+   BudgetBuddy - Design System & CSS Variables
+   Clean, modern, and minimal fintech palette for college students
+   ========================================================================== */
+
+:root {
+  /* Brand & Core Palette (Light Mode) */
+  --color-primary: #287C72;
+  --color-primary-hover: #20655c;
+  --color-primary-light: rgba(40, 124, 114, 0.10);
+  --color-primary-border: rgba(40, 124, 114, 0.22);
+
+  --color-secondary: #8174C8;
+  --color-secondary-bg: #F2F0FB;
+  --color-secondary-text: #5d4fae;
+
+  --color-accent: #E98778;
+  --color-accent-bg: #FDF1EF;
+  --color-accent-text: #ba4f40;
+
+  --color-highlight: #E8B75D;
+  --color-highlight-bg: #FEF8EC;
+  --color-highlight-text: #9e721d;
+
+  --color-success: #48A878;
+  --color-success-bg: #EDF7F2;
+  --color-success-text: #26774f;
+
+  --color-blue: #729BC4;
+  --color-blue-bg: #F0F5FA;
+  --color-blue-text: #3c6591;
+
+  --color-rose: #D76C75;
+  --color-rose-bg: #FCF0F2;
+  --color-rose-text: #a83d47;
+
+  /* Neutrals & Surfaces (Light Mode) */
+  --bg-main: #F7F8FA;
+  --bg-sidebar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-subtle: #F1F3F6;
+  --bg-input: #FFFFFF;
+  --bg-hover: #F4F6F8;
+  --bg-active: #EAEFF3;
+  --bg-overlay: rgba(18, 22, 28, 0.45);
+
+  /* Typography Colors */
+  --text-primary: #252A31;
+  --text-secondary: #858B96;
+  --text-muted: #9FA6B2;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-light: #E8EBF0;
+  --border-subtle: #EEF1F5;
+  --border-focus: #287C72;
+
+  /* Soft Fintech Shadows */
+  --shadow-xs: 0 1px 3px rgba(16, 24, 40, 0.04);
+  --shadow-sm: 0 2px 8px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 8px 20px -3px rgba(16, 24, 40, 0.07), 0 3px 8px -2px rgba(16, 24, 40, 0.03);
+  --shadow-modal: 0 20px 40px -10px rgba(16, 24, 40, 0.2);
+
+  /* Category Specific Colors */
+  --cat-food: #E98778;
+  --cat-food-bg: #FDF1EF;
+  --cat-transport: #729BC4;
+  --cat-transport-bg: #F0F5FA;
+  --cat-academics: #8174C8;
+  --cat-academics-bg: #F2F0FB;
+  --cat-shopping: #E8B75D;
+  --cat-shopping-bg: #FEF8EC;
+  --cat-entertainment: #D76C75;
+  --cat-entertainment-bg: #FCF0F2;
+  --cat-hostel: #287C72;
+  --cat-hostel-bg: #E8F5F3;
+  --cat-personal: #48A878;
+  --cat-personal-bg: #EDF7F2;
+  --cat-other: #858B96;
+  --cat-other-bg: #F1F3F6;
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 68px;
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Fonts */
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ==========================================================================
+   Dark Theme Definition
+   ========================================================================== */
+[data-theme="dark"] {
+  --color-primary: #69B6A5;
+  --color-primary-hover: #7cc7b7;
+  --color-primary-light: rgba(105, 182, 165, 0.14);
+  --color-primary-border: rgba(105, 182, 165, 0.28);
+
+  --color-secondary: #A99BE8;
+  --color-secondary-bg: rgba(169, 155, 232, 0.14);
+  --color-secondary-text: #c5bbf5;
+
+  --color-accent: #E98791;
+  --color-accent-bg: rgba(233, 135, 145, 0.14);
+  --color-accent-text: #f7aab2;
+
+  --color-highlight: #E8B75D;
+  --color-highlight-bg: rgba(232, 183, 93, 0.14);
+  --color-highlight-text: #f3ca7e;
+
+  --color-success: #59C58E;
+  --color-success-bg: rgba(89, 197, 142, 0.14);
+  --color-success-text: #7ee2b0;
+
+  --color-blue: #86AEDB;
+  --color-blue-bg: rgba(134, 174, 219, 0.14);
+  --color-blue-text: #b0d0f5;
+
+  --color-rose: #E27B84;
+  --color-rose-bg: rgba(226, 123, 132, 0.14);
+  --color-rose-text: #f3a2a9;
+
+  /* Neutrals & Surfaces (Dark Mode) */
+  --bg-main: #14171D;
+  --bg-sidebar: #191D25;
+  --bg-card: #202630;
+  --bg-elevated: #272E39;
+  --bg-subtle: #252D38;
+  --bg-input: #1D232C;
+  --bg-hover: #29323F;
+  --bg-active: #313B4A;
+  --bg-overlay: rgba(6, 8, 12, 0.75);
+
+  /* Typography Colors */
+  --text-primary: #F1F3F5;
+  --text-secondary: #A0A8B4;
+  --text-muted: #6B7687;
+  --text-inverse: #14171D;
+
+  /* Borders & Dividers */
+  --border-light: #343C48;
+  --border-subtle: #29323F;
+  --border-focus: #69B6A5;
+
+  /* Dark Shadows */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 20px -3px rgba(0, 0, 0, 0.45);
+  --shadow-modal: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+
+  /* Category Specific Colors (Dark) */
+  --cat-food: #E98791;
+  --cat-food-bg: rgba(233, 135, 145, 0.14);
+  --cat-transport: #86AEDB;
+  --cat-transport-bg: rgba(134, 174, 219, 0.14);
+  --cat-academics: #A99BE8;
+  --cat-academics-bg: rgba(169, 155, 232, 0.14);
+  --cat-shopping: #E8B75D;
+  --cat-shopping-bg: rgba(232, 183, 93, 0.14);
+  --cat-entertainment: #E27B84;
+  --cat-entertainment-bg: rgba(226, 123, 132, 0.14);
+  --cat-hostel: #69B6A5;
+  --cat-hostel-bg: rgba(105, 182, 165, 0.14);
+  --cat-personal: #59C58E;
+  --cat-personal-bg: rgba(89, 197, 142, 0.14);
+  --cat-other: #858B96;
+  --cat-other-bg: rgba(133, 139, 150, 0.14);
+}
+
