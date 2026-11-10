@@ -38,12 +38,6 @@ class DashboardView {
     const allTx = this.store.getTransactions();
     const budgets = this.store.getBudgets();
 
-    // Time-based greeting
-    const hour = new Date().getHours();
-    let timeGreeting = 'Good morning';
-    if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
-    else if (hour >= 17) timeGreeting = 'Good evening';
-
     // Formatted current date
     const now = new Date();
     const dateFormatted = now.toLocaleDateString('en-IN', {
@@ -138,7 +132,7 @@ class DashboardView {
       <!-- 1. Top Section -->
       <section class="dashboard-top-bar">
         <div class="dashboard-greeting-group">
-          <h1>${timeGreeting}, ${userName}! 👋</h1>
+          <h1>Hello, ${userName}! 👋</h1>
           <p class="dashboard-date-text">${dateFormatted}</p>
         </div>
         <div class="dashboard-actions">
