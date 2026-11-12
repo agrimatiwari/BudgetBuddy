@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BudgetBuddy - Budget Management View Controller
+   BudgetBuddy - Budget Management View Controller (Accessible & Multi-Month)
    ========================================================================== */
 
 class BudgetsView {
@@ -11,59 +11,73 @@ class BudgetsView {
     const container = document.getElementById('view-budgets');
     if (!container) return;
 
-    const summary = window.insightsEngine.getFinancialSummary();
-    const budgets = this.store.getBudgets();
+    const selectedPeriod = this.store.getSelectedPeriod();
+    const summary = window.insightsEngine.getFinancialSummary(selectedPeriod);
+    const budgets = this.store.getBudgets(selectedPeriod);
     const categoryBudgets = budgets.categories || {};
 
     const overall = Number(budgets.overallMonthly) || 0;
     const spent = summary.totalExpenses;
-    const remaining = Math.max(0, overall - spent);
-    const consumedPct = overall > 0 ? (spent / overall) * 100 : 0;
+    const remaining = Math.max(0, fromPaise(toPaise(overall) - toPaise(spent)));
+    const consumedPct = overall > 0 ? (toPaise(spent) / toPaise(overall)) * 100 : 0;
 
     let overallStatusTag = '';
     let overallProgressColor = 'progress-normal';
-    if (consumedPct >= 100) {
+    if (consumedPct > 100) {
       overallStatusTag = `<span class="badge badge-expense">🚨 Budget Exceeded</span>`;
       overallProgressColor = 'progress-danger';
+    } else if (consumedPct === 100) {
+      overallStatusTag = `<span class="badge badge-expense">🛑 100% Limit Reached</span>`;
+      overallProgressColor = 'progress-danger';
     } else if (consumedPct >= 80) {
-      overallStatusTag = `<span class="badge" style="background: var(--color-highlight-bg); color: var(--color-highlight-text);">⚠️ Limit Approaching</span>`;
+      overallStatusTag = `<span class="badge" style="background: var(--color-highlight-bg); color: var(--color-highlight-text);">⚠️ 80%+ Limit Approaching</span>`;
       overallProgressColor = 'progress-warning';
+    } else if (consumedPct >= 50) {
+      overallStatusTag = `<span class="badge badge-neutral">ℹ️ 50%+ Halfway Used</span>`;
+      overallProgressColor = 'progress-normal';
     } else {
       overallStatusTag = `<span class="badge badge-income">✅ Within Budget</span>`;
       overallProgressColor = 'progress-normal';
     }
 
-    // Category Budget Cards
     const categoryCardsHTML = EXPENSE_CATEGORIES.map(cat => {
       const limit = Number(categoryBudgets[cat]) || 0;
       const catSpent = summary.categoryExpenses[cat] || 0;
-      const catRemaining = Math.max(0, limit - catSpent);
-      const catPct = limit > 0 ? (catSpent / limit) * 100 : 0;
-      const icon = DashboardView.getCategoryIcon(cat);
+      const catRemaining = Math.max(0, fromPaise(toPaise(limit) - toPaise(catSpent)));
+      const catPct = limit > 0 ? (toPaise(catSpent) / toPaise(limit)) * 100 : 0;
+      const icon = typeof DashboardView !== 'undefined' ? DashboardView.getCategoryIcon(cat) : '📌';
 
       let statusBadge = '';
       let barColor = 'progress-normal';
       if (limit === 0) {
         statusBadge = `<span class="badge badge-neutral">No limit set</span>`;
-      } else if (catPct >= 100) {
-        statusBadge = `<span class="badge badge-expense">Exceeded (+${formatINR(catSpent - limit)})</span>`;
+      } else if (catPct > 100) {
+        const overAmt = fromPaise(toPaise(catSpent) - toPaise(limit));
+        statusBadge = `<span class="badge badge-expense">🚨 Exceeded (+${formatINR(overAmt)})</span>`;
+        barColor = 'progress-danger';
+      } else if (catPct === 100) {
+        statusBadge = `<span class="badge badge-expense">🛑 100% Reached</span>`;
         barColor = 'progress-danger';
       } else if (catPct >= 80) {
-        statusBadge = `<span class="badge" style="background: var(--color-highlight-bg); color: var(--color-highlight-text);">${catPct.toFixed(0)}% used</span>`;
+        statusBadge = `<span class="badge" style="background: var(--color-highlight-bg); color: var(--color-highlight-text);">⚠️ ${catPct.toFixed(0)}% used</span>`;
         barColor = 'progress-warning';
+      } else if (catPct >= 50) {
+        statusBadge = `<span class="badge badge-neutral">ℹ️ ${catPct.toFixed(0)}% used</span>`;
       } else {
-        statusBadge = `<span class="badge badge-income">On Track</span>`;
+        statusBadge = `<span class="badge badge-income">✅ On Track</span>`;
       }
+
+      const safeCat = escapeHTML(cat);
 
       return `
         <div class="budget-card">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="category-icon-circle" style="background: var(--bg-subtle);">
+              <span class="category-icon-circle" aria-hidden="true" style="background: var(--bg-subtle);">
                 ${icon}
               </span>
               <div>
-                <strong style="display: block; font-size: 0.92rem; color: var(--text-primary);">${cat}</strong>
+                <strong style="display: block; font-size: 0.92rem; color: var(--text-primary);">${safeCat}</strong>
                 <small style="color: var(--text-secondary); font-size: 0.74rem;">Budget: ${limit > 0 ? formatINR(limit) : 'Not set'}</small>
               </div>
             </div>
@@ -80,13 +94,13 @@ class BudgetsView {
               </span>
             </div>
 
-            <div class="progress-bar-track">
+            <div class="progress-bar-track" role="progressbar" aria-label="${safeCat} budget utilization" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(catPct))}">
               <div class="progress-bar-fill ${barColor}" style="width: ${Math.min(100, catPct)}%;"></div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary); margin-top: 8px;">
               <span>Left: <strong>${limit > 0 ? formatINR(catRemaining) : 'N/A'}</strong></span>
-              <button class="btn btn-secondary btn-sm" onclick="window.appController.openEditBudgetModal('${cat}', ${limit})">
+              <button type="button" class="btn btn-secondary btn-sm" aria-label="Adjust budget for ${safeCat}" onclick="window.appController.openEditBudgetModal('${safeCat}', ${limit})">
                 Adjust
               </button>
             </div>
@@ -98,20 +112,19 @@ class BudgetsView {
     container.innerHTML = `
       <div class="section-header">
         <div>
-          <h2 class="section-title">Budget Management</h2>
+          <h2 class="section-title">Budget Management (${escapeHTML(selectedPeriod)})</h2>
           <p class="section-subtitle">Set disciplined monthly spending targets to keep your pocket money safe.</p>
         </div>
-        <button class="btn btn-primary" onclick="window.appController.openEditOverallBudgetModal(${overall})">
-          ⚙️ Set Total Monthly Budget
+        <button type="button" class="btn btn-primary" onclick="window.appController.openEditOverallBudgetModal(${overall})">
+          <span aria-hidden="true">⚙️</span> Set Total Monthly Budget
         </button>
       </div>
 
-      <!-- Hero Monthly Budget Summary Card -->
       <div class="card" style="margin-bottom: 22px; padding: 22px;">
         <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
           <div>
             <span style="font-size: 0.76rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
-              Total Monthly Spending Limit
+              Total Monthly Spending Limit (${escapeHTML(selectedPeriod)})
             </span>
             <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary); font-family: var(--font-mono);">
               ${formatINR(overall)}
@@ -127,7 +140,7 @@ class BudgetsView {
               ${formatINR(spent)} spent (${consumedPct.toFixed(1)}%) • ${formatINR(remaining)} remaining
             </span>
           </div>
-          <div class="progress-bar-track" style="height: 10px;">
+          <div class="progress-bar-track" style="height: 10px;" role="progressbar" aria-label="Overall monthly budget utilization" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(consumedPct))}">
             <div class="progress-bar-fill ${overallProgressColor}" style="width: ${Math.min(100, consumedPct)}%;"></div>
           </div>
         </div>
@@ -135,7 +148,7 @@ class BudgetsView {
 
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
         <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Category Budgets</h3>
-        <span style="font-size: 0.8rem; color: var(--text-secondary);">Click "Adjust" on any category to change limits.</span>
+        <span style="font-size: 0.8rem; color: var(--text-secondary);">Alerts trigger at 50%, 80%, 100%, and over-limit.</span>
       </div>
 
       <div class="budgets-grid">

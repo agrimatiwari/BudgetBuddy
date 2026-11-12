@@ -11,11 +11,9 @@ class AnalyticsView {
     const container = document.getElementById('view-insights');
     if (!container) return;
 
-    const summary = window.insightsEngine.getFinancialSummary();
     const health = window.insightsEngine.calculateFinancialHealth();
     const insights = window.insightsEngine.generateSmartInsights();
 
-    // Insights Cards
     let insightsHTML = '';
     if (insights.length === 0) {
       insightsHTML = `
@@ -25,17 +23,16 @@ class AnalyticsView {
       `;
     } else {
       insightsHTML = insights.map(ins => `
-        <div class="insight-card type-${ins.type}">
-          <div class="insight-icon">${ins.icon}</div>
+        <article class="insight-card type-${escapeHTML(ins.type)}">
+          <div class="insight-icon" aria-hidden="true">${ins.icon}</div>
           <div>
-            <h4 class="insight-title">${ins.title}</h4>
-            <p class="insight-body">${ins.body}</p>
+            <h4 class="insight-title">${escapeHTML(ins.title)}</h4>
+            <p class="insight-body">${escapeHTML(ins.body)}</p>
           </div>
-        </div>
+        </article>
       `).join('');
     }
 
-    // Health factors
     const factorsHTML = health.factors.map(f => {
       const pct = (f.score / f.max) * 100;
       let barCol = 'progress-normal';
@@ -45,10 +42,10 @@ class AnalyticsView {
       return `
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 10px;">
           <span style="font-size: 0.84rem; font-weight: 500; color: var(--text-primary); flex: 1.2;">
-            ${f.title}
+            ${escapeHTML(f.title)}
           </span>
           <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
-            <div class="progress-bar-track" style="height: 6px; flex: 1;">
+            <div class="progress-bar-track" style="height: 6px; flex: 1;" role="progressbar" aria-label="${escapeHTML(f.title)}" aria-valuemin="0" aria-valuemax="${f.max}" aria-valuenow="${f.score}">
               <div class="progress-bar-fill ${barCol}" style="width: ${pct}%;"></div>
             </div>
             <span style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; min-width: 40px; text-align: right;">
@@ -67,14 +64,13 @@ class AnalyticsView {
         </div>
       </div>
 
-      <!-- Financial Health Scorecard -->
-      <div class="card" style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: center; margin-bottom: 22px;">
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; align-items: center; margin-bottom: 22px;">
         <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
           <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-primary); font-family: var(--font-mono); line-height: 1;">
             ${health.score}
           </div>
           <div style="font-size: 0.92rem; font-weight: 700; color: ${health.ratingColor}; margin-top: 4px;">
-            ${health.rating} Health
+            ${escapeHTML(health.rating)} Health
           </div>
           <small style="color: var(--text-secondary); font-size: 0.74rem;">Score out of 100</small>
         </div>
@@ -87,10 +83,9 @@ class AnalyticsView {
         </div>
       </div>
 
-      <!-- Core 5 Student Insights Grid -->
       <div style="margin-bottom: 14px;">
         <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 14px;">
-          💡 Personalized Spending Observations
+          <span aria-hidden="true">💡</span> Personalized Spending Observations
         </h3>
         <div class="insights-grid">
           ${insightsHTML}

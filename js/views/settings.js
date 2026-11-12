@@ -27,59 +27,56 @@ class SettingsView {
       </div>
 
       <div class="settings-grid">
-        <!-- 1. Profile Setup -->
         <div class="card">
           <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 14px;">
-            👤 Student Profile
+            <span aria-hidden="true">👤</span> Student Profile
           </h3>
 
           <div class="form-group">
-            <label class="form-label">Your Name</label>
-            <input type="text" id="settingUserName" class="form-input" value="${currentName}" placeholder="e.g. Rahul Sharma">
+            <label class="form-label" for="settingUserName">Your Name</label>
+            <input type="text" id="settingUserName" class="form-input" maxlength="60" value="${escapeHTML(currentName)}" placeholder="e.g. Rahul Sharma">
             <small style="color: var(--text-secondary); font-size: 0.74rem;">Shown on your dashboard greeting.</small>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Currency</label>
-            <input type="text" class="form-input" value="₹ (Indian Rupee - INR)" disabled style="opacity: 0.8; background: var(--bg-subtle);">
+            <label class="form-label" for="settingCurrencyDisplay">Currency</label>
+            <input type="text" id="settingCurrencyDisplay" class="form-input" value="₹ (Indian Rupee - INR)" disabled style="opacity: 0.85; background: var(--bg-subtle);">
           </div>
 
-          <button class="btn btn-primary" onclick="window.appController.saveProfileSettings()">
+          <button type="button" class="btn btn-primary" onclick="window.appController.saveProfileSettings()">
             Save Name
           </button>
         </div>
 
-        <!-- 2. Appearance & Theme -->
         <div class="card">
           <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 14px;">
-            🎨 Theme Selection
+            <span aria-hidden="true">🎨</span> Theme Selection
           </h3>
           <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
             Toggle between clean light and modern dark themes. Saved locally in your browser.
           </p>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="card" style="padding: 14px; text-align: center; cursor: pointer; border: 2px solid ${currentTheme === 'light' ? 'var(--color-primary)' : 'var(--border-light)'}; background: ${currentTheme === 'light' ? 'var(--color-primary-light)' : 'var(--bg-card)'};"
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" role="group" aria-label="Theme selection">
+            <button type="button" class="card" aria-pressed="${currentTheme === 'light'}" style="padding: 14px; text-align: center; cursor: pointer; border: 2px solid ${currentTheme === 'light' ? 'var(--color-primary)' : 'var(--border-light)'}; background: ${currentTheme === 'light' ? 'var(--color-primary-light)' : 'var(--bg-card)'};"
               onclick="window.appController.switchTheme('light')">
-              <span style="font-size: 1.3rem;">☀️</span>
-              <div style="font-size: 0.86rem; font-weight: 700; margin-top: 4px;">Light Mode</div>
-            </div>
+              <span style="font-size: 1.3rem;" aria-hidden="true">☀️</span>
+              <div style="font-size: 0.86rem; font-weight: 700; margin-top: 4px; color: var(--text-primary);">Light Mode</div>
+            </button>
 
-            <div class="card" style="padding: 14px; text-align: center; cursor: pointer; border: 2px solid ${currentTheme === 'dark' ? 'var(--color-primary)' : 'var(--border-light)'}; background: ${currentTheme === 'dark' ? 'var(--color-primary-light)' : 'var(--bg-card)'};"
+            <button type="button" class="card" aria-pressed="${currentTheme === 'dark'}" style="padding: 14px; text-align: center; cursor: pointer; border: 2px solid ${currentTheme === 'dark' ? 'var(--color-primary)' : 'var(--border-light)'}; background: ${currentTheme === 'dark' ? 'var(--color-primary-light)' : 'var(--bg-card)'};"
               onclick="window.appController.switchTheme('dark')">
-              <span style="font-size: 1.3rem;">🌙</span>
-              <div style="font-size: 0.86rem; font-weight: 700; margin-top: 4px;">Dark Mode</div>
-            </div>
+              <span style="font-size: 1.3rem;" aria-hidden="true">🌙</span>
+              <div style="font-size: 0.86rem; font-weight: 700; margin-top: 4px; color: var(--text-primary);">Dark Mode</div>
+            </button>
           </div>
         </div>
 
-        <!-- 3. Local Data & Privacy -->
         <div class="card" style="grid-column: 1 / -1;">
           <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
-            💾 Data Backup & Privacy
+            <span aria-hidden="true">💾</span> Data Backup & Storage Notice
           </h3>
           <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 14px;">
-            BudgetBuddy runs 100% locally on your computer with LocalStorage. No server, no accounts, and complete privacy.
+            BudgetBuddy stores data in your browser's LocalStorage with no remote server. Export JSON backups regularly, and avoid storing passwords, PINs, or sensitive financial credentials.
           </p>
 
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px;">
@@ -89,22 +86,23 @@ class SettingsView {
           </div>
 
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn btn-secondary" onclick="window.appStore.exportJSON()">
-              📤 Export Backup (JSON)
+            <button type="button" class="btn btn-secondary" onclick="window.appStore.exportJSON()">
+              <span aria-hidden="true">📤</span> Export Backup (JSON)
             </button>
 
-            <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">
-              📥 Import Backup (JSON)
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">
+              <span aria-hidden="true">📥</span> Import Backup (JSON)
             </button>
+            <label for="importFileInput" class="sr-only">Import JSON backup file</label>
             <input type="file" id="importFileInput" accept=".json" style="display: none;"
               onchange="window.appController.handleFileImport(event)">
 
-            <button class="btn btn-outline" onclick="window.appController.loadSampleData()">
-              🔄 Reset to College Sample Data
+            <button type="button" class="btn btn-outline" onclick="window.appController.loadSampleData()">
+              <span aria-hidden="true">🔄</span> Reset to College Sample Data
             </button>
 
-            <button class="btn btn-danger" style="margin-left: auto;" onclick="window.appController.confirmWipeAllData()">
-              🗑️ Clear All Data
+            <button type="button" class="btn btn-danger" style="margin-left: auto;" onclick="window.appController.confirmWipeAllData()">
+              <span aria-hidden="true">🗑️</span> Clear All Data
             </button>
           </div>
         </div>

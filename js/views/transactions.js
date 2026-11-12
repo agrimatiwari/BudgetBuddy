@@ -71,8 +71,8 @@ class TransactionsView {
     list.sort((a, b) => {
       if (sortBy === 'date-desc') return new Date(b.date) - new Date(a.date);
       if (sortBy === 'date-asc') return new Date(a.date) - new Date(b.date);
-      if (sortBy === 'amount-desc') return (Number(b.amount) || 0) - (Number(a.amount) || 0);
-      if (sortBy === 'amount-asc') return (Number(a.amount) || 0) - (Number(b.amount) || 0);
+      if (sortBy === 'amount-desc') return toPaise(b.amount) - toPaise(a.amount);
+      if (sortBy === 'amount-asc') return toPaise(a.amount) - toPaise(b.amount);
       return 0;
     });
 
@@ -86,27 +86,27 @@ class TransactionsView {
     const filteredTx = this.getFilteredTransactions();
     const allCategories = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
 
-    let filteredIncome = 0;
-    let filteredExpense = 0;
+    let filteredIncomePaise = 0;
+    let filteredExpensePaise = 0;
     filteredTx.forEach(t => {
-      const amt = Number(t.amount) || 0;
-      if (t.type === 'income') filteredIncome += amt;
-      else if (t.type === 'expense') filteredExpense += amt;
+      const amtPaise = toPaise(t.amount);
+      if (t.type === 'income') filteredIncomePaise += amtPaise;
+      else if (t.type === 'expense') filteredExpensePaise += amtPaise;
     });
 
     const categoryOptions = allCategories.map(c => `
-      <option value="${c}" ${this.filters.category === c ? 'selected' : ''}>${c}</option>
+      <option value="${escapeHTML(c)}" ${this.filters.category === c ? 'selected' : ''}>${escapeHTML(c)}</option>
     `).join('');
 
     let tableRowsHTML = '';
     if (filteredTx.length === 0) {
       tableRowsHTML = `
         <tr>
-          <td colspan="6" class="empty-state">
-            <div class="empty-state-icon">🔍</div>
+          <td colspan="7" class="empty-state">
+            <div class="empty-state-icon" aria-hidden="true">🔍</div>
             <p class="empty-state-title">No transactions found</p>
             <p class="empty-state-desc">Try clearing your filters or search keywords.</p>
-            <button class="btn btn-secondary btn-sm" onclick="window.transactionsView.resetFilters()">Clear Filters</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.transactionsView.resetFilters()">Clear Filters</button>
           </td>
         </tr>
       `;
@@ -117,34 +117,35 @@ class TransactionsView {
         const sign = isIncome ? '+' : '-';
         const amtClass = isIncome ? 'amount-income' : 'amount-expense';
         const badgeClass = isIncome ? 'badge-income' : 'badge-expense';
+        const safeTitle = escapeHTML(tx.title);
 
         return `
           <tr>
             <td style="color: var(--text-muted); font-size: 0.78rem; width: 36px;">${idx + 1}</td>
             <td>
               <div class="category-pill">
-                <span class="category-icon-circle" style="background-color: var(--bg-subtle);">
+                <span class="category-icon-circle" aria-hidden="true" style="background-color: var(--bg-subtle);">
                   ${icon}
                 </span>
                 <div>
-                  <strong style="font-size: 0.88rem; color: var(--text-primary); display: block;">${tx.title}</strong>
-                  ${tx.description ? `<small style="color: var(--text-secondary); font-size: 0.75rem;">${tx.description}</small>` : ''}
+                  <strong style="font-size: 0.88rem; color: var(--text-primary); display: block;">${safeTitle}</strong>
+                  ${tx.description ? `<small style="color: var(--text-secondary); font-size: 0.75rem;">${escapeHTML(tx.description)}</small>` : ''}
                 </div>
               </div>
             </td>
             <td>
-              <span class="badge ${badgeClass}">${tx.category}</span>
+              <span class="badge ${badgeClass}">${isIncome ? '↑' : '↓'} ${escapeHTML(tx.category)}</span>
             </td>
             <td>
-              <span class="badge badge-neutral">${tx.paymentMethod || 'UPI'}</span>
+              <span class="badge badge-neutral">${escapeHTML(tx.paymentMethod || 'UPI')}</span>
             </td>
-            <td style="color: var(--text-secondary); font-size: 0.82rem;">${tx.date}</td>
+            <td style="color: var(--text-secondary); font-size: 0.82rem;">${escapeHTML(tx.date)}</td>
             <td class="amount-cell ${amtClass}">${sign}${formatINR(tx.amount)}</td>
             <td style="text-align: right; white-space: nowrap;">
-              <button class="btn btn-secondary btn-sm" onclick="window.appController.openEditTransactionModal('${tx.id}')" title="Edit">
+              <button type="button" class="btn btn-secondary btn-sm" aria-label="Edit transaction ${safeTitle}" onclick="window.appController.openEditTransactionModal('${escapeHTML(tx.id)}')">
                 ✏️
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="window.appController.confirmDeleteTransaction('${tx.id}')" title="Delete" style="color: var(--color-rose);">
+              <button type="button" class="btn btn-secondary btn-sm" aria-label="Delete transaction ${safeTitle}" onclick="window.appController.confirmDeleteTransaction('${escapeHTML(tx.id)}')" style="color: var(--color-rose);">
                 🗑️
               </button>
             </td>
@@ -159,38 +160,37 @@ class TransactionsView {
           <h2 class="section-title">Transactions</h2>
           <p class="section-subtitle">Manage, search, and track all your pocket money and college expenses.</p>
         </div>
-        <button class="btn btn-primary" onclick="window.appController.openAddTransactionModal()">
-          <span>+</span> Add Transaction
+        <button type="button" class="btn btn-primary" onclick="window.appController.openAddTransactionModal()">
+          <span aria-hidden="true">+</span> Add Transaction
         </button>
       </div>
 
-      <!-- Filter Controls Toolbar -->
-      <div class="filter-toolbar">
+      <div class="filter-toolbar" role="region" aria-label="Transaction filters">
         <div class="filter-group">
-          <!-- Search -->
           <div class="header-search" style="width: 220px;">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search title or note..." value="${this.filters.searchQuery}"
+            <label for="txSearchFilter" class="sr-only">Search transactions by title or note</label>
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="txSearchFilter" placeholder="Search title or note..." value="${escapeHTML(this.filters.searchQuery)}"
               oninput="window.transactionsView.setFilter('searchQuery', this.value)">
           </div>
 
-          <!-- Type -->
-          <select class="form-select" style="width: 130px; padding: 7px 10px;"
+          <label for="txTypeFilter" class="sr-only">Filter by transaction type</label>
+          <select id="txTypeFilter" class="form-select" style="width: 130px; padding: 7px 10px;"
             onchange="window.transactionsView.setFilter('type', this.value)">
             <option value="all" ${this.filters.type === 'all' ? 'selected' : ''}>All Types</option>
             <option value="expense" ${this.filters.type === 'expense' ? 'selected' : ''}>Expenses</option>
             <option value="income" ${this.filters.type === 'income' ? 'selected' : ''}>Income</option>
           </select>
 
-          <!-- Category -->
-          <select class="form-select" style="width: 160px; padding: 7px 10px;"
+          <label for="txCategoryFilter" class="sr-only">Filter by category</label>
+          <select id="txCategoryFilter" class="form-select" style="width: 160px; padding: 7px 10px;"
             onchange="window.transactionsView.setFilter('category', this.value)">
             <option value="all" ${this.filters.category === 'all' ? 'selected' : ''}>All Categories</option>
             ${categoryOptions}
           </select>
 
-          <!-- Date Filter -->
-          <select class="form-select" style="width: 140px; padding: 7px 10px;"
+          <label for="txDateRangeFilter" class="sr-only">Filter by date range</label>
+          <select id="txDateRangeFilter" class="form-select" style="width: 140px; padding: 7px 10px;"
             onchange="window.transactionsView.setFilter('dateRange', this.value)">
             <option value="all" ${this.filters.dateRange === 'all' ? 'selected' : ''}>All Time</option>
             <option value="this_month" ${this.filters.dateRange === 'this_month' ? 'selected' : ''}>This Month</option>
@@ -199,17 +199,19 @@ class TransactionsView {
           </select>
 
           ${this.filters.dateRange === 'custom' ? `
-            <input type="date" class="form-input" style="width: 130px; padding: 6px 8px;" value="${this.filters.startDate}"
+            <label for="txStartDateFilter" class="sr-only">Start date</label>
+            <input type="date" id="txStartDateFilter" class="form-input" style="width: 135px; padding: 6px 8px;" value="${escapeHTML(this.filters.startDate)}"
               onchange="window.transactionsView.setFilter('startDate', this.value)">
             <span style="color: var(--text-muted); font-size: 0.8rem;">to</span>
-            <input type="date" class="form-input" style="width: 130px; padding: 6px 8px;" value="${this.filters.endDate}"
+            <label for="txEndDateFilter" class="sr-only">End date</label>
+            <input type="date" id="txEndDateFilter" class="form-input" style="width: 135px; padding: 6px 8px;" value="${escapeHTML(this.filters.endDate)}"
               onchange="window.transactionsView.setFilter('endDate', this.value)">
           ` : ''}
         </div>
 
         <div class="filter-group">
-          <!-- Sort -->
-          <select class="form-select" style="width: 160px; padding: 7px 10px;"
+          <label for="txSortFilter" class="sr-only">Sort transactions</label>
+          <select id="txSortFilter" class="form-select" style="width: 165px; padding: 7px 10px;"
             onchange="window.transactionsView.setFilter('sortBy', this.value)">
             <option value="date-desc" ${this.filters.sortBy === 'date-desc' ? 'selected' : ''}>Date: Newest</option>
             <option value="date-asc" ${this.filters.sortBy === 'date-asc' ? 'selected' : ''}>Date: Oldest</option>
@@ -219,32 +221,30 @@ class TransactionsView {
         </div>
       </div>
 
-      <!-- Quick Summary Pills -->
       <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
         <span class="badge badge-neutral" style="padding: 5px 12px; font-size: 0.8rem;">
           Showing: <strong>${filteredTx.length} records</strong>
         </span>
         <span class="badge badge-income" style="padding: 5px 12px; font-size: 0.8rem;">
-          Total Inflow: <strong>+${formatINR(filteredIncome)}</strong>
+          Total Inflow: <strong>+${formatINR(fromPaise(filteredIncomePaise))}</strong>
         </span>
         <span class="badge badge-expense" style="padding: 5px 12px; font-size: 0.8rem;">
-          Total Outflow: <strong>-${formatINR(filteredExpense)}</strong>
+          Total Outflow: <strong>-${formatINR(fromPaise(filteredExpensePaise))}</strong>
         </span>
       </div>
 
-      <!-- Transactions Table -->
       <div class="card" style="padding: 0; overflow: hidden;">
         <div class="table-responsive">
-          <table class="data-table">
+          <table class="data-table" aria-label="Filtered transactions ledger">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Item & Note</th>
-                <th>Category</th>
-                <th>Payment Mode</th>
-                <th>Date</th>
-                <th style="text-align: right;">Amount</th>
-                <th style="text-align: right;">Actions</th>
+                <th scope="col">#</th>
+                <th scope="col">Item & Note</th>
+                <th scope="col">Category</th>
+                <th scope="col">Payment Mode</th>
+                <th scope="col">Date</th>
+                <th scope="col" style="text-align: right;">Amount</th>
+                <th scope="col" style="text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody>

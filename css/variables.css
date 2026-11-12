@@ -1,6 +1,6 @@
 /* ==========================================================================
    BudgetBuddy - Design System & CSS Variables
-   Clean, modern, and minimal fintech palette for college students
+   WCAG 2.1 AA high-contrast tokens for Light and Dark modes
    ========================================================================== */
 
 :root {
@@ -20,11 +20,11 @@
 
   --color-highlight: #E8B75D;
   --color-highlight-bg: #FEF8EC;
-  --color-highlight-text: #9e721d;
+  --color-highlight-text: #8c6214;
 
   --color-success: #48A878;
   --color-success-bg: #EDF7F2;
-  --color-success-text: #26774f;
+  --color-success-text: #226b47;
 
   --color-blue: #729BC4;
   --color-blue-bg: #F0F5FA;
@@ -45,10 +45,10 @@
   --bg-active: #EAEFF3;
   --bg-overlay: rgba(18, 22, 28, 0.45);
 
-  /* Typography Colors */
+  /* Typography Colors (WCAG AA >= 4.5:1) */
   --text-primary: #252A31;
-  --text-secondary: #858B96;
-  --text-muted: #9FA6B2;
+  --text-secondary: #5E6570;
+  --text-muted: #6E7682;
   --text-inverse: #FFFFFF;
 
   /* Borders & Dividers */
@@ -147,10 +147,10 @@
   --bg-active: #313B4A;
   --bg-overlay: rgba(6, 8, 12, 0.75);
 
-  /* Typography Colors */
+  /* Typography Colors (WCAG AA >= 4.5:1) */
   --text-primary: #F1F3F5;
-  --text-secondary: #A0A8B4;
-  --text-muted: #6B7687;
+  --text-secondary: #B0B8C4;
+  --text-muted: #8E98A8;
   --text-inverse: #14171D;
 
   /* Borders & Dividers */
@@ -182,4 +182,3 @@
   --cat-other: #858B96;
   --cat-other-bg: rgba(133, 139, 150, 0.14);
 }
-

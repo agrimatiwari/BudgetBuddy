@@ -1,6 +1,5 @@
 /* ==========================================================================
    BudgetBuddy - Clean Sidebar Navigation Styles
-   Minimal, organized, modern fintech navigation
    ========================================================================== */
 
 .sidebar {
@@ -96,7 +95,6 @@
   }
 }
 
-/* Nav Menu Content */
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -152,7 +150,6 @@
   font-size: 1rem;
 }
 
-/* Sidebar Footer */
 .sidebar-footer {
   padding: 14px 16px;
   border-top: 1px solid var(--border-subtle);
@@ -164,7 +161,6 @@
   color: var(--text-secondary);
 }
 
-/* Collapsed Sidebar Mode */
 .app-container.sidebar-collapsed .sidebar {
   width: var(--sidebar-collapsed-width);
 }

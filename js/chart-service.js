@@ -1,6 +1,6 @@
 /* ==========================================================================
    BudgetBuddy - Chart.js Configuration & Management Service
-   Compact, readable charts adapted for Light/Dark themes and Indian Rupee format
+   Includes ARIA attributes and screen-reader textual summaries for charts.
    ========================================================================== */
 
 class ChartService {
@@ -11,7 +11,6 @@ class ChartService {
       monthlyTrend: null
     };
 
-    // Category Colors Mapped to College Student Categories
     this.categoryColors = {
       'Food & Dining': '#E98778',
       'Transportation': '#729BC4',
@@ -31,7 +30,7 @@ class ChartService {
   getThemeColors() {
     const isDark = this.isDarkMode();
     return {
-      textColor: isDark ? '#A0A8B4' : '#858B96',
+      textColor: isDark ? '#B0B8C4' : '#5E6570',
       titleColor: isDark ? '#F1F3F5' : '#252A31',
       gridColor: isDark ? 'rgba(52, 60, 72, 0.4)' : 'rgba(232, 235, 240, 0.8)',
       tooltipBg: isDark ? '#272E39' : '#FFFFFF',
@@ -40,7 +39,6 @@ class ChartService {
     };
   }
 
-  // 1. Spending Breakdown Doughnut Chart (Compact & Clean)
   renderCategoryDoughnut(canvasId, legendContainerId, periodStr = null) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -58,7 +56,10 @@ class ChartService {
     const theme = this.getThemeColors();
     const legendContainer = document.getElementById(legendContainerId);
 
+    canvas.setAttribute('role', 'img');
+
     if (labels.length === 0 || summary.totalExpenses === 0) {
+      canvas.setAttribute('aria-label', 'Spending breakdown chart: No expense records for this month yet.');
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (legendContainer) {
@@ -71,12 +72,18 @@ class ChartService {
       return;
     }
 
+    const summaryParts = labels.map((lbl, idx) => {
+      const pct = summary.totalExpenses > 0 ? ((data[idx] / summary.totalExpenses) * 100).toFixed(0) : 0;
+      return `${lbl}: ${formatINR(data[idx])} (${pct}%)`;
+    });
+    canvas.setAttribute('aria-label', `Monthly spending breakdown doughnut chart. ${summaryParts.join(', ')}.`);
+
     this.charts.categoryDoughnut = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: labels,
+        labels,
         datasets: [{
-          data: data,
+          data,
           backgroundColor: colors,
           borderWidth: 2,
           borderColor: this.isDarkMode() ? '#202630' : '#FFFFFF',
@@ -109,7 +116,6 @@ class ChartService {
       }
     });
 
-    // Populate clean, compact legend with category names, percentages and amounts
     if (legendContainer) {
       legendContainer.innerHTML = labels.map((lbl, idx) => {
         const amt = data[idx];
@@ -117,8 +123,8 @@ class ChartService {
         return `
           <div class="legend-row">
             <div class="legend-label-wrap">
-              <span class="legend-dot" style="background-color: ${colors[idx]}"></span>
-              <span style="font-weight: 500;">${lbl}</span>
+              <span class="legend-dot" aria-hidden="true" style="background-color: ${colors[idx]}"></span>
+              <span style="font-weight: 500;">${escapeHTML(lbl)}</span>
             </div>
             <div class="legend-values">
               <span style="font-weight: 700; color: var(--text-primary);">${formatINR(amt)}</span>
@@ -130,7 +136,6 @@ class ChartService {
     }
   }
 
-  // 2. Monthly Spending Trend Chart (Compact & Calm)
   renderMonthlyTrend(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -148,30 +153,35 @@ class ChartService {
     const incomeData = [];
     const expenseData = [];
 
-    // Last 5 months for clean readability
     for (let i = 4; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const periodStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      labels.push(d.toLocaleDateString(undefined, { month: 'short' }));
+      labels.push(d.toLocaleDateString('en-IN', { month: 'short' }));
 
       const monthTx = allTx.filter(t => t.date && t.date.startsWith(periodStr));
-      let inc = 0;
-      let exp = 0;
+      let incPaise = 0;
+      let expPaise = 0;
       monthTx.forEach(t => {
-        if (t.type === 'income') inc += Number(t.amount);
-        if (t.type === 'expense') exp += Number(t.amount);
+        if (t.type === 'income') incPaise += toPaise(t.amount);
+        if (t.type === 'expense') expPaise += toPaise(t.amount);
       });
-      incomeData.push(inc);
-      expenseData.push(exp);
+      incomeData.push(fromPaise(incPaise));
+      expenseData.push(fromPaise(expPaise));
     }
 
-    const incomeColor = this.isDarkMode() ? '#59C58E' : '#48A878';
-    const expenseColor = this.isDarkMode() ? '#E98791' : '#E98778';
+    const ariaText = labels.map((m, idx) =>
+      `${m}: Income ${formatINR(incomeData[idx])}, Expenses ${formatINR(expenseData[idx])}`
+    ).join('; ');
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', `5-month income versus expense trend bar chart. ${ariaText}.`);
+
+    const incomeColor = this.isDarkMode() ? '#59C58E' : '#2E8B57';
+    const expenseColor = this.isDarkMode() ? '#E98791' : '#D9534F';
 
     this.charts.monthlyTrend = new Chart(canvas, {
       type: 'bar',
       data: {
-        labels: labels,
+        labels,
         datasets: [
           {
             label: 'Income',
@@ -250,5 +260,4 @@ class ChartService {
   }
 }
 
-// Global Chart Service Instance
 window.chartService = new ChartService(window.appStore);

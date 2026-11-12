@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BudgetBuddy – Smart Student Expense Tracker</title>
-  <meta name="description" content="A clean, modern personal expense-tracking application designed for college students to manage pocket money, track expenses and monitor budgets.">
+  <meta name="description" content="A clean, accessible personal expense-tracking application designed for college students to manage pocket money, track expenses and monitor budgets.">
 
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,151 +22,154 @@
   <link rel="stylesheet" href="css/views.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <div class="app-container">
     <!-- Mobile drawer backdrop -->
-    <div class="sidebar-backdrop" onclick="window.appController.closeMobileSidebar()"></div>
+    <div class="sidebar-backdrop" aria-hidden="true" onclick="window.appController.closeMobileSidebar()"></div>
 
-    <!-- 1. Simple Clean Sidebar Navigation -->
-    <aside class="sidebar">
+    <!-- 1. Accessible Sidebar Navigation -->
+    <aside class="sidebar" id="appSidebar" aria-label="Primary Sidebar">
       <div class="sidebar-header">
-        <a href="#dashboard" class="brand-logo" onclick="window.appRouter.navigateTo('dashboard')">
-          <div class="brand-icon">B</div>
+        <a href="#dashboard" class="brand-logo" aria-label="BudgetBuddy Home" onclick="window.appRouter.navigateTo('dashboard')">
+          <div class="brand-icon" aria-hidden="true">B</div>
           <div class="brand-name">
             BudgetBuddy
             <span class="brand-badge">STUDENT</span>
           </div>
         </a>
-        <button class="sidebar-close-btn" onclick="window.appController.closeMobileSidebar()">✕</button>
+        <button type="button" class="sidebar-close-btn" aria-label="Close navigation menu" onclick="window.appController.closeMobileSidebar()">✕</button>
       </div>
 
-      <nav class="sidebar-nav">
-        <a class="nav-link active" data-route="dashboard" onclick="window.appRouter.navigateTo('dashboard')">
-          <span class="nav-icon">📊</span>
+      <nav class="sidebar-nav" aria-label="Application Views">
+        <a href="#dashboard" class="nav-link active" data-route="dashboard" aria-current="page" onclick="window.appRouter.navigateTo('dashboard')">
+          <span class="nav-icon" aria-hidden="true">📊</span>
           <span class="nav-text">Dashboard</span>
         </a>
 
-        <a class="nav-link" data-route="transactions" onclick="window.appRouter.navigateTo('transactions')">
-          <span class="nav-icon">💳</span>
+        <a href="#transactions" class="nav-link" data-route="transactions" onclick="window.appRouter.navigateTo('transactions')">
+          <span class="nav-icon" aria-hidden="true">💳</span>
           <span class="nav-text">Transactions</span>
         </a>
 
-        <a class="nav-link" data-route="budgets" onclick="window.appRouter.navigateTo('budgets')">
-          <span class="nav-icon">🎯</span>
+        <a href="#budgets" class="nav-link" data-route="budgets" onclick="window.appRouter.navigateTo('budgets')">
+          <span class="nav-icon" aria-hidden="true">🎯</span>
           <span class="nav-text">Budgets</span>
         </a>
 
-        <a class="nav-link" data-route="insights" onclick="window.appRouter.navigateTo('insights')">
-          <span class="nav-icon">💡</span>
+        <a href="#insights" class="nav-link" data-route="insights" onclick="window.appRouter.navigateTo('insights')">
+          <span class="nav-icon" aria-hidden="true">💡</span>
           <span class="nav-text">Spending Insights</span>
         </a>
 
-        <a class="nav-link" data-route="savings" onclick="window.appRouter.navigateTo('savings')">
-          <span class="nav-icon">💰</span>
+        <a href="#savings" class="nav-link" data-route="savings" onclick="window.appRouter.navigateTo('savings')">
+          <span class="nav-icon" aria-hidden="true">💰</span>
           <span class="nav-text">Savings Goals</span>
         </a>
 
-        <a class="nav-link" data-route="subscriptions" onclick="window.appRouter.navigateTo('subscriptions')">
-          <span class="nav-icon">🔄</span>
+        <a href="#subscriptions" class="nav-link" data-route="subscriptions" onclick="window.appRouter.navigateTo('subscriptions')">
+          <span class="nav-icon" aria-hidden="true">🔄</span>
           <span class="nav-text">Subscriptions</span>
         </a>
 
-        <a class="nav-link" data-route="calendar" onclick="window.appRouter.navigateTo('calendar')">
-          <span class="nav-icon">📅</span>
+        <a href="#calendar" class="nav-link" data-route="calendar" onclick="window.appRouter.navigateTo('calendar')">
+          <span class="nav-icon" aria-hidden="true">📅</span>
           <span class="nav-text">Spending Calendar</span>
         </a>
 
-        <a class="nav-link" data-route="settings" onclick="window.appRouter.navigateTo('settings')">
-          <span class="nav-icon">⚙️</span>
+        <a href="#settings" class="nav-link" data-route="settings" onclick="window.appRouter.navigateTo('settings')">
+          <span class="nav-icon" aria-hidden="true">⚙️</span>
           <span class="nav-text">Settings</span>
         </a>
       </nav>
 
       <div class="sidebar-footer">
         <span>Offline LocalStorage</span>
-        <span>v2.0</span>
+        <span>v2.1</span>
       </div>
     </aside>
 
     <!-- 2. Main Content Container -->
-    <main class="main-content">
+    <main class="main-content" id="main-content" tabindex="-1">
       <!-- Top Sticky Header -->
       <header class="top-header">
         <div class="header-left">
-          <button class="menu-toggle-btn" onclick="window.appController.toggleSidebar()" title="Toggle Sidebar">
+          <button type="button" class="menu-toggle-btn" aria-label="Toggle navigation sidebar" aria-expanded="true" aria-controls="appSidebar" onclick="window.appController.toggleSidebar()">
             ☰
           </button>
-          <div class="header-search">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search expenses, canteen..." onkeyup="if(event.key==='Enter') window.appController.handleGlobalSearch(this.value)">
+          <div class="header-search" role="search">
+            <label for="globalSearchInput" class="sr-only">Search expenses and transactions</label>
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="globalSearchInput" placeholder="Search expenses, canteen..." onkeydown="if(event.key==='Enter') window.appController.handleGlobalSearch(this.value)">
           </div>
         </div>
 
         <div class="header-right">
           <!-- Live Time Pill -->
-          <div class="header-time-pill">
-            <span>🕒</span>
+          <div class="header-time-pill" aria-label="Current time and date">
+            <span aria-hidden="true">🕒</span>
             <span id="headerLiveTime">--:--</span>
           </div>
 
           <!-- Theme Toggle -->
-          <button class="header-action-btn" id="themeToggleBtn" onclick="window.appController.toggleTheme()" title="Toggle Light/Dark Theme">
-            <span id="themeToggleIcon">🌙</span>
+          <button type="button" class="header-action-btn" id="themeToggleBtn" aria-label="Switch to Dark Mode" aria-pressed="false" onclick="window.appController.toggleTheme()">
+            <span id="themeToggleIcon" aria-hidden="true">🌙</span>
           </button>
 
           <!-- User Profile -->
-          <div class="header-user-badge" onclick="window.appRouter.navigateTo('settings')" title="Manage Preferences">
-            <div class="header-user-avatar" id="headerUserAvatar">R</div>
+          <button type="button" class="header-user-badge" aria-label="Open profile and settings" onclick="window.appRouter.navigateTo('settings')">
+            <div class="header-user-avatar" id="headerUserAvatar" aria-hidden="true">R</div>
             <span class="header-user-name" id="headerUserName">Rahul Sharma</span>
-          </div>
+          </button>
         </div>
       </header>
 
       <!-- Dynamic Viewport Area -->
       <div class="view-viewport">
-        <div id="view-dashboard" class="view-section active"></div>
-        <div id="view-transactions" class="view-section"></div>
-        <div id="view-budgets" class="view-section"></div>
-        <div id="view-insights" class="view-section"></div>
-        <div id="view-savings" class="view-section"></div>
-        <div id="view-subscriptions" class="view-section"></div>
-        <div id="view-calendar" class="view-section"></div>
-        <div id="view-settings" class="view-section"></div>
+        <section id="view-dashboard" class="view-section active" aria-label="Dashboard"></section>
+        <section id="view-transactions" class="view-section" aria-label="Transactions"></section>
+        <section id="view-budgets" class="view-section" aria-label="Budgets"></section>
+        <section id="view-insights" class="view-section" aria-label="Spending Insights"></section>
+        <section id="view-savings" class="view-section" aria-label="Savings Goals"></section>
+        <section id="view-subscriptions" class="view-section" aria-label="Subscriptions"></section>
+        <section id="view-calendar" class="view-section" aria-label="Spending Calendar"></section>
+        <section id="view-settings" class="view-section" aria-label="Settings"></section>
       </div>
     </main>
   </div>
 
   <!-- =========================================================================
-       MODALS
+       ACCESSIBLE MODALS
        ========================================================================= -->
 
   <!-- 1. Add / Edit Transaction Modal -->
-  <div class="modal-overlay" id="transactionModal">
+  <div class="modal-overlay" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="txModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title" id="txModalTitle">Add Transaction</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('transactionModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close transaction dialog" onclick="window.appController.closeModal('transactionModal')">✕</button>
       </div>
-      <form id="transactionForm" onsubmit="window.appController.saveTransactionForm(event)">
+      <form id="transactionForm" novalidate onsubmit="window.appController.saveTransactionForm(event)">
         <div class="modal-body">
+          <div id="txFormError" class="form-error-banner" role="alert" hidden></div>
           <input type="hidden" id="txIdInput">
 
           <div class="form-group">
-            <label class="form-label">Transaction Title *</label>
-            <input type="text" id="txTitleInput" class="form-input" placeholder="e.g. Canteen Lunch, Xerox, Auto Fare" required>
+            <label class="form-label" for="txTitleInput">Transaction Title *</label>
+            <input type="text" id="txTitleInput" class="form-input" maxlength="100" placeholder="e.g. Canteen Lunch, Xerox, Auto Fare" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Amount (₹) *</label>
+              <label class="form-label" for="txAmountInput">Amount (₹) *</label>
               <div class="input-with-icon">
-                <span class="input-prefix">₹</span>
-                <input type="number" step="1" min="1" id="txAmountInput" class="form-input" placeholder="150" required>
+                <span class="input-prefix" aria-hidden="true">₹</span>
+                <input type="number" step="0.01" min="0.01" max="10000000" id="txAmountInput" class="form-input" placeholder="150" required>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Type *</label>
+              <label class="form-label" for="txTypeInput">Type *</label>
               <select id="txTypeInput" class="form-select" onchange="window.appController.syncTxCategories(this.value)">
                 <option value="expense">Expense (Outflow)</option>
                 <option value="income">Income (Inflow)</option>
@@ -176,18 +179,18 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Category *</label>
+              <label class="form-label" for="txCategoryInput">Category *</label>
               <select id="txCategoryInput" class="form-select" required></select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Date *</label>
+              <label class="form-label" for="txDateInput">Date *</label>
               <input type="date" id="txDateInput" class="form-input" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Payment Mode</label>
+            <label class="form-label" for="txPaymentMethodInput">Payment Mode</label>
             <select id="txPaymentMethodInput" class="form-select">
               <option value="UPI">UPI (Google Pay, PhonePe, Paytm)</option>
               <option value="Cash">Cash</option>
@@ -197,8 +200,8 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Optional Note</label>
-            <textarea id="txDescInput" class="form-textarea" placeholder="Add details like roommates shared with, store name..."></textarea>
+            <label class="form-label" for="txDescInput">Optional Note</label>
+            <textarea id="txDescInput" class="form-textarea" maxlength="300" placeholder="Add details like roommates shared with, store name..."></textarea>
           </div>
         </div>
 
@@ -211,23 +214,23 @@
   </div>
 
   <!-- 2. Set Category Budget Modal -->
-  <div class="modal-overlay" id="categoryBudgetModal">
+  <div class="modal-overlay" id="categoryBudgetModal" role="dialog" aria-modal="true" aria-labelledby="catBudgetModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">Adjust Category Budget</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('categoryBudgetModal')">✕</button>
+        <h3 class="modal-title" id="catBudgetModalTitle">Adjust Category Budget</h3>
+        <button type="button" class="modal-close-btn" aria-label="Close category budget dialog" onclick="window.appController.closeModal('categoryBudgetModal')">✕</button>
       </div>
-      <form onsubmit="window.appController.saveCategoryBudgetForm(event)">
+      <form novalidate onsubmit="window.appController.saveCategoryBudgetForm(event)">
         <div class="modal-body">
           <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px;">
             Set monthly spending ceiling for <strong id="catBudgetCategoryName" style="color: var(--text-primary);"></strong>:
           </p>
           <input type="hidden" id="catBudgetCategoryInput">
           <div class="form-group">
-            <label class="form-label">Budget Limit (₹)</label>
+            <label class="form-label" for="catBudgetAmountInput">Budget Limit (₹)</label>
             <div class="input-with-icon">
-              <span class="input-prefix">₹</span>
-              <input type="number" step="50" min="0" id="catBudgetAmountInput" class="form-input" required>
+              <span class="input-prefix" aria-hidden="true">₹</span>
+              <input type="number" step="1" min="0" max="10000000" id="catBudgetAmountInput" class="form-input" required>
             </div>
           </div>
         </div>
@@ -240,22 +243,22 @@
   </div>
 
   <!-- 3. Overall Monthly Budget Modal -->
-  <div class="modal-overlay" id="overallBudgetModal">
+  <div class="modal-overlay" id="overallBudgetModal" role="dialog" aria-modal="true" aria-labelledby="overallBudgetModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">Set Overall Monthly Budget</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('overallBudgetModal')">✕</button>
+        <h3 class="modal-title" id="overallBudgetModalTitle">Set Overall Monthly Budget</h3>
+        <button type="button" class="modal-close-btn" aria-label="Close overall budget dialog" onclick="window.appController.closeModal('overallBudgetModal')">✕</button>
       </div>
-      <form onsubmit="window.appController.saveOverallBudgetForm(event)">
+      <form novalidate onsubmit="window.appController.saveOverallBudgetForm(event)">
         <div class="modal-body">
           <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px;">
-            Total pocket money / spending ceiling across all categories for the month.
+            Total pocket money / spending ceiling across all categories for the selected month.
           </p>
           <div class="form-group">
-            <label class="form-label">Total Monthly Budget (₹)</label>
+            <label class="form-label" for="overallBudgetInput">Total Monthly Budget (₹)</label>
             <div class="input-with-icon">
-              <span class="input-prefix">₹</span>
-              <input type="number" step="100" min="0" id="overallBudgetInput" class="form-input" required>
+              <span class="input-prefix" aria-hidden="true">₹</span>
+              <input type="number" step="1" min="0" max="10000000" id="overallBudgetInput" class="form-input" required>
             </div>
           </div>
         </div>
@@ -268,32 +271,32 @@
   </div>
 
   <!-- 4. Add / Edit Subscription Modal -->
-  <div class="modal-overlay" id="subscriptionModal">
+  <div class="modal-overlay" id="subscriptionModal" role="dialog" aria-modal="true" aria-labelledby="subModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title" id="subModalTitle">Add Subscription</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('subscriptionModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close subscription dialog" onclick="window.appController.closeModal('subscriptionModal')">✕</button>
       </div>
-      <form id="subForm" onsubmit="window.appController.saveSubscriptionForm(event)">
+      <form id="subForm" novalidate onsubmit="window.appController.saveSubscriptionForm(event)">
         <div class="modal-body">
           <input type="hidden" id="subIdInput">
 
           <div class="form-group">
-            <label class="form-label">Subscription / Service Name *</label>
-            <input type="text" id="subNameInput" class="form-input" placeholder="e.g. Spotify Student, YouTube Premium" required>
+            <label class="form-label" for="subNameInput">Subscription / Service Name *</label>
+            <input type="text" id="subNameInput" class="form-input" maxlength="80" placeholder="e.g. Spotify Student, YouTube Premium" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Cost in ₹ *</label>
+              <label class="form-label" for="subAmountInput">Cost in ₹ *</label>
               <div class="input-with-icon">
-                <span class="input-prefix">₹</span>
-                <input type="number" step="1" min="1" id="subAmountInput" class="form-input" required>
+                <span class="input-prefix" aria-hidden="true">₹</span>
+                <input type="number" step="0.01" min="1" max="1000000" id="subAmountInput" class="form-input" required>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Billing Frequency</label>
+              <label class="form-label" for="subFreqInput">Billing Frequency</label>
               <select id="subFreqInput" class="form-select">
                 <option value="Monthly">Monthly</option>
                 <option value="Yearly">Yearly</option>
@@ -304,7 +307,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Category</label>
+              <label class="form-label" for="subCategoryInput">Category</label>
               <select id="subCategoryInput" class="form-select">
                 <option value="Entertainment">Entertainment</option>
                 <option value="Academics">Academics</option>
@@ -314,7 +317,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Next Renewal Date *</label>
+              <label class="form-label" for="subNextDateInput">Next Renewal Date *</label>
               <input type="date" id="subNextDateInput" class="form-input" required>
             </div>
           </div>
@@ -328,47 +331,47 @@
   </div>
 
   <!-- 5. Add / Edit Savings Goal Modal -->
-  <div class="modal-overlay" id="goalModal">
+  <div class="modal-overlay" id="goalModal" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title" id="goalModalTitle">Create Savings Goal</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('goalModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close savings goal dialog" onclick="window.appController.closeModal('goalModal')">✕</button>
       </div>
-      <form id="goalForm" onsubmit="window.appController.saveGoalForm(event)">
+      <form id="goalForm" novalidate onsubmit="window.appController.saveGoalForm(event)">
         <div class="modal-body">
           <input type="hidden" id="goalIdInput">
 
           <div class="form-group">
-            <label class="form-label">Goal Name *</label>
-            <input type="text" id="goalNameInput" class="form-input" placeholder="e.g. New Headphones, College Trip" required>
+            <label class="form-label" for="goalNameInput">Goal Name *</label>
+            <input type="text" id="goalNameInput" class="form-input" maxlength="80" placeholder="e.g. New Headphones, College Trip" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Target Amount (₹) *</label>
+              <label class="form-label" for="goalTargetInput">Target Amount (₹) *</label>
               <div class="input-with-icon">
-                <span class="input-prefix">₹</span>
-                <input type="number" step="50" min="10" id="goalTargetInput" class="form-input" required>
+                <span class="input-prefix" aria-hidden="true">₹</span>
+                <input type="number" step="1" min="1" max="100000000" id="goalTargetInput" class="form-input" required>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Current Saved Amount (₹)</label>
+              <label class="form-label" for="goalSavedInput">Current Saved Amount (₹)</label>
               <div class="input-with-icon">
-                <span class="input-prefix">₹</span>
-                <input type="number" step="50" min="0" id="goalSavedInput" class="form-input" value="0">
+                <span class="input-prefix" aria-hidden="true">₹</span>
+                <input type="number" step="1" min="0" max="100000000" id="goalSavedInput" class="form-input" value="0">
               </div>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Target Date</label>
+              <label class="form-label" for="goalDateInput">Target Date</label>
               <input type="date" id="goalDateInput" class="form-input">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Icon / Emoji</label>
+              <label class="form-label" for="goalIconInput">Icon / Emoji</label>
               <select id="goalIconInput" class="form-select">
                 <option value="🎧">🎧 Headphones / Audio</option>
                 <option value="🏖️">🏖️ College Trip / Vacation</option>
@@ -390,13 +393,13 @@
   </div>
 
   <!-- 6. Adjust Savings Goal Funds Modal -->
-  <div class="modal-overlay" id="adjustSavingsModal">
+  <div class="modal-overlay" id="adjustSavingsModal" role="dialog" aria-modal="true" aria-labelledby="adjustSavingsTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">Add / Withdraw Savings</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('adjustSavingsModal')">✕</button>
+        <h3 class="modal-title" id="adjustSavingsTitle">Add / Withdraw Savings</h3>
+        <button type="button" class="modal-close-btn" aria-label="Close adjust savings dialog" onclick="window.appController.closeModal('adjustSavingsModal')">✕</button>
       </div>
-      <form onsubmit="window.appController.saveAdjustSavings(event)">
+      <form novalidate onsubmit="window.appController.saveAdjustSavings(event)">
         <div class="modal-body">
           <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 12px;">
             Update funds for <strong id="adjustGoalName" style="color: var(--text-primary);"></strong>:
@@ -405,7 +408,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Action</label>
+              <label class="form-label" for="adjustActionType">Action</label>
               <select id="adjustActionType" class="form-select">
                 <option value="deposit">Deposit Funds (+)</option>
                 <option value="withdraw">Withdraw Funds (-)</option>
@@ -413,10 +416,10 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Amount (₹)</label>
+              <label class="form-label" for="adjustGoalAmount">Amount (₹)</label>
               <div class="input-with-icon">
-                <span class="input-prefix">₹</span>
-                <input type="number" step="10" min="1" id="adjustGoalAmount" class="form-input" placeholder="200" required>
+                <span class="input-prefix" aria-hidden="true">₹</span>
+                <input type="number" step="0.01" min="0.01" id="adjustGoalAmount" class="form-input" placeholder="200" required>
               </div>
             </div>
           </div>
@@ -430,13 +433,13 @@
   </div>
 
   <!-- 7. Calendar Date Transactions Modal -->
-  <div class="modal-overlay" id="calendarDateModal">
+  <div class="modal-overlay" id="calendarDateModal" role="dialog" aria-modal="true" aria-labelledby="calendarDateModalTitle" hidden>
     <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">
-          <span>📅</span> Transactions on <span id="calendarModalDate"></span>
+        <h3 class="modal-title" id="calendarDateModalTitle">
+          <span aria-hidden="true">📅</span> Transactions on <span id="calendarModalDate"></span>
         </h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('calendarDateModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close date transactions dialog" onclick="window.appController.closeModal('calendarDateModal')">✕</button>
       </div>
       <div class="modal-body" id="calendarModalContent"></div>
       <div class="modal-footer">
@@ -446,24 +449,24 @@
   </div>
 
   <!-- 8. Confirmation Dialog Modal -->
-  <div class="modal-overlay" id="confirmModal">
+  <div class="modal-overlay" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalMessage" hidden>
     <div class="modal-box" style="max-width: 420px;">
       <div class="modal-header">
         <h3 class="modal-title" id="confirmModalTitle">Confirm Action</h3>
-        <button class="modal-close-btn" onclick="window.appController.closeModal('confirmModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close confirmation dialog" onclick="window.appController.closeModal('confirmModal')">✕</button>
       </div>
       <div class="modal-body">
         <p id="confirmModalMessage" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;"></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="window.appController.closeModal('confirmModal')">Cancel</button>
-        <button type="button" class="btn btn-danger" onclick="window.appController.executeConfirmAction()">Proceed</button>
+        <button type="button" class="btn btn-danger" id="confirmModalProceedBtn" onclick="window.appController.executeConfirmAction()">Proceed</button>
       </div>
     </div>
   </div>
 
   <!-- Floating Toast Notifications Container -->
-  <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Application Logic Modules -->
   <script src="js/store.js"></script>

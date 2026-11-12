@@ -1,13 +1,8 @@
 /* ==========================================================================
    BudgetBuddy - View-Specific Styles
-   Spacious, clean, and organized layouts
+   Spacious, clean, responsive layouts
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. Dashboard View (Clean, Spacious, Uncluttered)
-   -------------------------------------------------------------------------- */
-
-/* Top Greeting Header */
 .dashboard-top-bar {
   display: flex;
   align-items: center;
@@ -58,12 +53,10 @@
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--text-primary);
-  outline: none;
   cursor: pointer;
   font-family: inherit;
 }
 
-/* 4 Summary Cards Grid */
 .summary-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -99,7 +92,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Subtle Card Color Accents */
 .card-balance {
   border-left: 4px solid var(--color-secondary);
   background: linear-gradient(135deg, var(--color-secondary-bg), var(--bg-card) 60%);
@@ -157,7 +149,6 @@
   color: var(--text-secondary);
 }
 
-/* Two-Column Middle Section (Spending Breakdown + Recent Transactions) */
 .dashboard-middle-grid {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
@@ -171,7 +162,6 @@
   }
 }
 
-/* Doughnut & Compact Legend */
 .breakdown-body {
   display: grid;
   grid-template-columns: 180px 1fr;
@@ -239,7 +229,6 @@
   text-align: right;
 }
 
-/* Dashboard Bottom Section (Trend Chart + Budget Progress) */
 .dashboard-bottom-grid {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -258,16 +247,12 @@
   width: 100%;
 }
 
-/* Category Budget Meters */
 .budget-meters-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* --------------------------------------------------------------------------
-   2. Budget Management View
-   -------------------------------------------------------------------------- */
 .budgets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -290,12 +275,9 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* --------------------------------------------------------------------------
-   3. Smart Spending Insights View
-   -------------------------------------------------------------------------- */
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -349,9 +331,6 @@
   line-height: 1.4;
 }
 
-/* --------------------------------------------------------------------------
-   4. Savings Goals View
-   -------------------------------------------------------------------------- */
 .goals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -372,9 +351,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* --------------------------------------------------------------------------
-   5. Subscriptions View
-   -------------------------------------------------------------------------- */
 .subscriptions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -396,9 +372,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* --------------------------------------------------------------------------
-   6. Spending Calendar View
-   -------------------------------------------------------------------------- */
 .calendar-card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -410,6 +383,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 18px;
 }
 
@@ -438,6 +413,9 @@
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
   transition: all var(--transition-fast);
 }
 
@@ -479,11 +457,18 @@
   text-align: right;
 }
 
-/* --------------------------------------------------------------------------
-   7. Settings View
-   -------------------------------------------------------------------------- */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .calendar-cell {
+    min-height: 54px;
+    padding: 4px;
+  }
 }

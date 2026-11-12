@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BudgetBuddy - Base Styles & Global Layout
+   BudgetBuddy - Base Styles, Global Layout & Accessibility Utilities
    ========================================================================== */
 
 *, *::before, *::after {
@@ -23,6 +23,60 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 12px;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* Visible Keyboard Focus Indicators */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Inline Form Error Banner */
+.form-error-banner {
+  background: rgba(217, 83, 79, 0.12);
+  border: 1px solid #d9534f;
+  color: #b52b27;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .form-error-banner {
+  color: #ff9a96;
 }
 
 /* Custom Scrollbars */
@@ -185,6 +239,7 @@ body {
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   cursor: pointer;
+  font-family: inherit;
 }
 
 .header-user-avatar {

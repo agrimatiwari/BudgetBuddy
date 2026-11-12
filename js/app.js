@@ -1,19 +1,19 @@
 /* ==========================================================================
-   BudgetBuddy - Main Application Controller & Router
+   BudgetBuddy - Main Application Controller & Accessible Router
    ========================================================================== */
 
 class AppRouter {
   constructor() {
     this.currentRoute = 'dashboard';
     this.routes = {
-      'dashboard': window.dashboardView,
-      'transactions': window.transactionsView,
-      'budgets': window.budgetsView,
-      'insights': window.analyticsView,
-      'savings': window.savingsView,
-      'subscriptions': window.subscriptionsView,
-      'calendar': window.calendarView,
-      'settings': window.settingsView
+      dashboard: window.dashboardView,
+      transactions: window.transactionsView,
+      budgets: window.budgetsView,
+      insights: window.analyticsView,
+      savings: window.savingsView,
+      subscriptions: window.subscriptionsView,
+      calendar: window.calendarView,
+      settings: window.settingsView
     };
 
     window.addEventListener('hashchange', () => this.handleHashChange());
@@ -48,8 +48,10 @@ class AppRouter {
       const linkRoute = link.getAttribute('data-route');
       if (linkRoute === routeName) {
         link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
       } else {
         link.classList.remove('active');
+        link.removeAttribute('aria-current');
       }
     });
 
@@ -79,7 +81,9 @@ class AppController {
     this.store = store;
     this.router = router;
     this.activeModal = null;
+    this.lastFocusedElement = null;
     this.deleteAction = null;
+    this.boundModalKeyHandler = (e) => this.handleModalKeydown(e);
   }
 
   init() {
@@ -117,7 +121,7 @@ class AppController {
     if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
   }
 
-  showToast(message, type = 'info', duration = 3000) {
+  showToast(message, type = 'info', duration = 3500) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
@@ -126,13 +130,19 @@ class AppController {
 
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
-    if (type === 'error') icon = '⚠️';
+    if (type === 'error' || type === 'warning') icon = '⚠️';
 
-    toast.innerHTML = `
-      <span style="font-size: 1rem;">${icon}</span>
-      <span style="flex: 1;">${message}</span>
-    `;
+    const iconSpan = document.createElement('span');
+    iconSpan.setAttribute('aria-hidden', 'true');
+    iconSpan.style.fontSize = '1rem';
+    iconSpan.textContent = icon;
 
+    const msgSpan = document.createElement('span');
+    msgSpan.style.flex = '1';
+    msgSpan.textContent = message;
+
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
     container.appendChild(toast);
 
     setTimeout(() => {
@@ -141,6 +151,14 @@ class AppController {
       toast.style.transition = 'all 0.25s ease';
       setTimeout(() => toast.remove(), 250);
     }, duration);
+  }
+
+  emitThresholdAlerts(alerts) {
+    if (!Array.isArray(alerts) || alerts.length === 0) return;
+    alerts.forEach((a, idx) => {
+      const toastType = a.threshold === 'OVER' || a.threshold === '100' ? 'error' : 'warning';
+      setTimeout(() => this.showToast(a.message, toastType, 4500), idx * 450);
+    });
   }
 
   switchTheme(newTheme) {
@@ -158,8 +176,14 @@ class AppController {
   applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     const themeIcon = document.getElementById('themeToggleIcon');
+    const themeBtn = document.getElementById('themeToggleBtn');
     if (themeIcon) {
       themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    if (themeBtn) {
+      const isDark = theme === 'dark';
+      themeBtn.setAttribute('aria-pressed', String(isDark));
+      themeBtn.setAttribute('aria-label', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
     setTimeout(() => {
       window.chartService?.refreshThemes();
@@ -173,45 +197,97 @@ class AppController {
 
   handleGlobalSearch(query) {
     this.router.navigateTo('transactions');
-    window.transactionsView.setFilter('searchQuery', query);
+    window.transactionsView?.setFilter('searchQuery', query);
   }
 
   toggleSidebar() {
     const container = document.querySelector('.app-container');
+    const btn = document.querySelector('.menu-toggle-btn');
+    if (!container) return;
+
     if (window.innerWidth <= 1024) {
-      container.classList.toggle('sidebar-open');
+      const open = container.classList.toggle('sidebar-open');
+      btn?.setAttribute('aria-expanded', String(open));
     } else {
-      container.classList.toggle('sidebar-collapsed');
+      const collapsed = container.classList.toggle('sidebar-collapsed');
+      btn?.setAttribute('aria-expanded', String(!collapsed));
     }
   }
 
   closeMobileSidebar() {
     document.querySelector('.app-container')?.classList.remove('sidebar-open');
+    document.querySelector('.menu-toggle-btn')?.setAttribute('aria-expanded', 'false');
   }
 
   openModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.add('open');
-      this.activeModal = modal;
+    if (!modal) return;
+
+    this.lastFocusedElement = document.activeElement;
+    modal.hidden = false;
+    modal.classList.add('open');
+    this.activeModal = modal;
+
+    document.addEventListener('keydown', this.boundModalKeyHandler);
+
+    const focusable = modal.querySelectorAll(
+      'button:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length > 0) {
+      focusable[0].focus();
     }
   }
 
   closeModal(modalId = null) {
-    if (modalId) {
-      document.getElementById(modalId)?.classList.remove('open');
-    } else if (this.activeModal) {
-      this.activeModal.classList.remove('open');
-      this.activeModal = null;
+    const modal = modalId ? document.getElementById(modalId) : this.activeModal;
+    if (modal) {
+      modal.classList.remove('open');
+      modal.hidden = true;
+    }
+    this.activeModal = null;
+    document.removeEventListener('keydown', this.boundModalKeyHandler);
+
+    if (this.lastFocusedElement && typeof this.lastFocusedElement.focus === 'function') {
+      this.lastFocusedElement.focus();
+      this.lastFocusedElement = null;
     }
   }
 
-  // -------------------------------------------------------------------------
-  // Transaction Modals
-  // -------------------------------------------------------------------------
+  handleModalKeydown(e) {
+    if (!this.activeModal) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      this.closeModal();
+      return;
+    }
+    if (e.key === 'Tab') {
+      const focusable = Array.from(
+        this.activeModal.querySelectorAll(
+          'button:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
   openAddTransactionModal() {
     const form = document.getElementById('transactionForm');
     if (form) form.reset();
+
+    const errBanner = document.getElementById('txFormError');
+    if (errBanner) {
+      errBanner.hidden = true;
+      errBanner.textContent = '';
+    }
 
     document.getElementById('txModalTitle').textContent = 'Add Transaction';
     document.getElementById('txIdInput').value = '';
@@ -224,6 +300,12 @@ class AppController {
   openEditTransactionModal(id) {
     const tx = this.store.getTransactionById(id);
     if (!tx) return;
+
+    const errBanner = document.getElementById('txFormError');
+    if (errBanner) {
+      errBanner.hidden = true;
+      errBanner.textContent = '';
+    }
 
     document.getElementById('txModalTitle').textContent = 'Edit Transaction';
     document.getElementById('txIdInput').value = tx.id;
@@ -244,49 +326,46 @@ class AppController {
 
     const list = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
     catSelect.innerHTML = list.map(c => `
-      <option value="${c}" ${c === selectedCategory ? 'selected' : ''}>${c}</option>
+      <option value="${escapeHTML(c)}" ${c === selectedCategory ? 'selected' : ''}>${escapeHTML(c)}</option>
     `).join('');
   }
 
   saveTransactionForm(e) {
     e.preventDefault();
     const id = document.getElementById('txIdInput').value;
-    const title = document.getElementById('txTitleInput').value.trim();
-    const amount = parseFloat(document.getElementById('txAmountInput').value);
-    const type = document.getElementById('txTypeInput').value;
-    const category = document.getElementById('txCategoryInput').value;
-    const date = document.getElementById('txDateInput').value;
-    const paymentMethod = document.getElementById('txPaymentMethodInput').value;
-    const description = document.getElementById('txDescInput').value.trim();
+    const payload = {
+      title: document.getElementById('txTitleInput').value.trim(),
+      amount: parseFloat(document.getElementById('txAmountInput').value),
+      type: document.getElementById('txTypeInput').value,
+      category: document.getElementById('txCategoryInput').value,
+      date: document.getElementById('txDateInput').value,
+      paymentMethod: document.getElementById('txPaymentMethodInput').value,
+      description: document.getElementById('txDescInput').value.trim()
+    };
 
-    if (!title) {
-      this.showToast('Please enter an expense/income title', 'error');
+    const res = id
+      ? this.store.updateTransaction(id, payload)
+      : this.store.addTransaction(payload);
+
+    if (!res.success) {
+      const errBanner = document.getElementById('txFormError');
+      if (errBanner) {
+        errBanner.textContent = res.error;
+        errBanner.hidden = false;
+      }
+      this.showToast(res.error, 'error');
       return;
     }
-    if (isNaN(amount) || amount <= 0) {
-      this.showToast('Please enter a valid amount greater than 0', 'error');
-      return;
-    }
-    if (!date) {
-      this.showToast('Please choose a date', 'error');
-      return;
-    }
 
-    if (id) {
-      this.store.updateTransaction(id, { title, amount, type, category, date, paymentMethod, description });
-      this.showToast('Transaction updated', 'success');
-    } else {
-      this.store.addTransaction({ title, amount, type, category, date, paymentMethod, description });
-      this.showToast('Transaction logged', 'success');
-    }
-
+    this.showToast(id ? 'Transaction updated' : 'Transaction logged', 'success');
     this.closeModal('transactionModal');
+    this.emitThresholdAlerts(res.alerts);
   }
 
   confirmDeleteTransaction(id) {
     this.openConfirmModal(
       'Delete Transaction',
-      'Are you sure you want to delete this record?',
+      'Are you sure you want to delete this record? This action cannot be undone.',
       () => {
         this.store.deleteTransaction(id);
         this.showToast('Transaction removed', 'info');
@@ -294,9 +373,6 @@ class AppController {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Budget Modals
-  // -------------------------------------------------------------------------
   openEditOverallBudgetModal(currentVal) {
     document.getElementById('overallBudgetInput').value = currentVal;
     this.openModal('overallBudgetModal');
@@ -306,7 +382,7 @@ class AppController {
     e.preventDefault();
     const val = parseFloat(document.getElementById('overallBudgetInput').value);
     if (isNaN(val) || val < 0) {
-      this.showToast('Please enter a valid budget amount', 'error');
+      this.showToast('Please enter a valid non-negative budget amount', 'error');
       return;
     }
     this.store.updateOverallBudget(val);
@@ -326,17 +402,17 @@ class AppController {
     const category = document.getElementById('catBudgetCategoryInput').value;
     const amount = parseFloat(document.getElementById('catBudgetAmountInput').value);
     if (isNaN(amount) || amount < 0) {
-      this.showToast('Please enter a valid budget amount', 'error');
+      this.showToast('Please enter a valid non-negative budget amount', 'error');
       return;
     }
-    this.store.updateCategoryBudget(category, amount);
+    const res = this.store.updateCategoryBudget(category, amount);
     this.showToast(`Updated budget for ${category}`, 'success');
     this.closeModal('categoryBudgetModal');
+    if (res && res.alerts) {
+      this.emitThresholdAlerts(res.alerts);
+    }
   }
 
-  // -------------------------------------------------------------------------
-  // Subscription Modals
-  // -------------------------------------------------------------------------
   openAddSubscriptionModal() {
     document.getElementById('subForm').reset();
     document.getElementById('subIdInput').value = '';
@@ -363,22 +439,24 @@ class AppController {
   saveSubscriptionForm(e) {
     e.preventDefault();
     const id = document.getElementById('subIdInput').value;
-    const name = document.getElementById('subNameInput').value.trim();
-    const amount = parseFloat(document.getElementById('subAmountInput').value);
-    const frequency = document.getElementById('subFreqInput').value;
-    const category = document.getElementById('subCategoryInput').value;
-    const nextBillingDate = document.getElementById('subNextDateInput').value;
+    const payload = {
+      name: document.getElementById('subNameInput').value.trim(),
+      amount: parseFloat(document.getElementById('subAmountInput').value),
+      frequency: document.getElementById('subFreqInput').value,
+      category: document.getElementById('subCategoryInput').value,
+      nextBillingDate: document.getElementById('subNextDateInput').value
+    };
 
-    if (!name || isNaN(amount) || amount <= 0 || !nextBillingDate) {
+    if (!payload.name || isNaN(payload.amount) || payload.amount <= 0 || !payload.nextBillingDate) {
       this.showToast('Please fill all required subscription details', 'error');
       return;
     }
 
     if (id) {
-      this.store.updateSubscription(id, { name, amount, frequency, category, nextBillingDate });
+      this.store.updateSubscription(id, payload);
       this.showToast('Subscription updated', 'success');
     } else {
-      this.store.addSubscription({ name, amount, frequency, category, nextBillingDate });
+      this.store.addSubscription(payload);
       this.showToast('Subscription added', 'success');
     }
 
@@ -392,9 +470,6 @@ class AppController {
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Savings Goal Modals
-  // -------------------------------------------------------------------------
   openAddSavingsGoalModal() {
     document.getElementById('goalForm').reset();
     document.getElementById('goalIdInput').value = '';
@@ -420,22 +495,24 @@ class AppController {
   saveGoalForm(e) {
     e.preventDefault();
     const id = document.getElementById('goalIdInput').value;
-    const name = document.getElementById('goalNameInput').value.trim();
-    const targetAmount = parseFloat(document.getElementById('goalTargetInput').value);
-    const savedAmount = parseFloat(document.getElementById('goalSavedInput').value) || 0;
-    const targetDate = document.getElementById('goalDateInput').value;
-    const icon = document.getElementById('goalIconInput').value || '🎯';
+    const payload = {
+      name: document.getElementById('goalNameInput').value.trim(),
+      targetAmount: parseFloat(document.getElementById('goalTargetInput').value),
+      savedAmount: parseFloat(document.getElementById('goalSavedInput').value) || 0,
+      targetDate: document.getElementById('goalDateInput').value,
+      icon: document.getElementById('goalIconInput').value || '🎯'
+    };
 
-    if (!name || isNaN(targetAmount) || targetAmount <= 0) {
-      this.showToast('Please enter a goal name and target amount', 'error');
+    if (!payload.name || isNaN(payload.targetAmount) || payload.targetAmount <= 0) {
+      this.showToast('Please enter a goal name and positive target amount', 'error');
       return;
     }
 
     if (id) {
-      this.store.updateSavingsGoal(id, { name, targetAmount, savedAmount, targetDate, icon });
+      this.store.updateSavingsGoal(id, payload);
       this.showToast('Goal updated', 'success');
     } else {
-      this.store.addSavingsGoal({ name, targetAmount, savedAmount, targetDate, icon });
+      this.store.addSavingsGoal(payload);
       this.showToast('Savings goal created', 'success');
     }
 
@@ -464,7 +541,7 @@ class AppController {
     const amt = parseFloat(document.getElementById('adjustGoalAmount').value);
 
     if (isNaN(amt) || amt <= 0) {
-      this.showToast('Please enter a valid amount', 'error');
+      this.showToast('Please enter a valid positive amount', 'error');
       return;
     }
 
@@ -475,26 +552,24 @@ class AppController {
   }
 
   confirmDeleteSavingsGoal(id) {
-    this.openConfirmModal('Delete Savings Goal', 'Remove this savings goal?', () => {
+    this.openConfirmModal('Delete Savings Goal', 'Remove this savings goal? This action cannot be undone.', () => {
       this.store.deleteSavingsGoal(id);
       this.showToast('Savings goal removed', 'info');
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Calendar Date Modal
-  // -------------------------------------------------------------------------
   openCalendarDateModal(dateStr) {
     const allTx = this.store.getTransactions().filter(t => t.date === dateStr);
 
     document.getElementById('calendarModalDate').textContent = dateStr;
     const body = document.getElementById('calendarModalContent');
+    const safeDateAttr = escapeHTML(dateStr);
 
     if (allTx.length === 0) {
       body.innerHTML = `
         <div class="empty-state" style="padding: 20px;">
-          <p class="empty-state-desc">No transactions on ${dateStr}.</p>
-          <button class="btn btn-primary btn-sm" onclick="window.appController.openAddTransactionForDate('${dateStr}')">
+          <p class="empty-state-desc">No transactions recorded on ${escapeHTML(dateStr)}.</p>
+          <button type="button" class="btn btn-primary btn-sm" onclick="window.appController.openAddTransactionForDate('${safeDateAttr}')">
             + Log Expense for this date
           </button>
         </div>
@@ -509,10 +584,10 @@ class AppController {
         return `
           <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle);">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span>${icon}</span>
+              <span aria-hidden="true">${icon}</span>
               <div>
-                <strong style="font-size: 0.88rem; display: block;">${tx.title}</strong>
-                <small style="color: var(--text-secondary); font-size: 0.74rem;">${tx.category}</small>
+                <strong style="font-size: 0.88rem; display: block;">${escapeHTML(tx.title)}</strong>
+                <small style="color: var(--text-secondary); font-size: 0.74rem;">${escapeHTML(tx.category)}</small>
               </div>
             </div>
             <div class="${amtClass}" style="font-weight: 700; font-family: var(--font-mono);">
@@ -526,7 +601,7 @@ class AppController {
         <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px;">
           ${rows}
         </div>
-        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="window.appController.openAddTransactionForDate('${dateStr}')">
+        <button type="button" class="btn btn-secondary btn-sm" style="width: 100%;" onclick="window.appController.openAddTransactionForDate('${safeDateAttr}')">
           + Add another transaction for this date
         </button>
       `;
@@ -541,9 +616,6 @@ class AppController {
     document.getElementById('txDateInput').value = dateStr;
   }
 
-  // -------------------------------------------------------------------------
-  // Settings & Backups
-  // -------------------------------------------------------------------------
   saveProfileSettings() {
     const userName = document.getElementById('settingUserName').value.trim();
     if (!userName) {
@@ -562,7 +634,7 @@ class AppController {
     reader.onload = (event) => {
       const res = this.store.importJSON(event.target.result);
       if (res.success) {
-        this.showToast('Backup restored successfully!', 'success');
+        this.showToast(`Backup restored (${res.importedCount} transactions)!`, 'success');
       } else {
         this.showToast(`Import failed: ${res.error}`, 'error');
       }
@@ -603,7 +675,6 @@ class AppController {
   }
 }
 
-// Global App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   window.appRouter = new AppRouter();
   window.appController = new AppController(window.appStore, window.appRouter);
